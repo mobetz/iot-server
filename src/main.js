@@ -4,6 +4,16 @@ const app = express();
 const port = 3000;
 const pg = require("pg");
 
+function getDbClient() {
+    const dbClient = new pg.Client({
+        user: 'iotproject',
+        host: 'localhost', //todo: localhost
+        database: 'iotfinal',
+        port: 5432,
+    });
+    dbClient.connect();
+    return dbClient;
+}
 
 
 app.use(express.static('static'));
@@ -16,14 +26,19 @@ app.use(
 );
 
 
-app.post("/sendReading", (req, resp) => {
-    const dbClient = new pg.Client({
-        user: 'iotproject',
-        host: 'localhost', //todo: localhost
-        database: 'iotfinal',
-        port: 5432,
+app.get("/readings", (req, resp) => {
+    const dbClient = getDbClient();
+
+    const query = "SELECT t.*, h.percentage FROM temperatures t JOIN humidities h ON t.timestamp = h.timestamp AND t.source = h.source ORDER BY timestamp desc";
+    dbClient.query(query, params, (err, res) => {
+       resp.send(res.rows);
     });
-    dbClient.connect();
+
+});
+
+
+app.post("/readings", (req, resp) => {
+    const dbClient = getDbClient();
 
     console.log(req.body);
 
@@ -42,14 +57,14 @@ app.post("/sendReading", (req, resp) => {
 
             if ( humidity ) {
                 let humidity_query = "INSERT INTO humidities(percentage, source, timestamp) VALUES($1, (select id from sources where name=$2), NOW())";
-                let humidity_params = [degrees, host];
+                let humidity_params = [humidity, host];
 
                 dbClient.query(humidity_query, humidity_params, (err, res) => {
                     dbClient.end();
                 });
             }
 
-            resp.send('OK!');
+            resp.send('Reading Added!');
             dbClient.end();
         });
 
