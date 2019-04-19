@@ -6,6 +6,7 @@ const pg = require("pg");
 
 
 
+app.use(express.static('../static'));
 
 app.use(bodyParser.json());
 app.use(
@@ -31,7 +32,7 @@ app.post("/sendReading", (req, resp) => {
     let humidity = req.body.humidity;
 
     if(!degrees || !host) {
-        resp.status(400).send("degrees or source not supplied!")
+        resp.status(400).send("degrees or host not supplied!")
     }
     else {
         let query = "INSERT INTO temperatures(degrees, source, timestamp) VALUES($1, (select id from sources where name=$2), NOW())";
