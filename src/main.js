@@ -7,7 +7,7 @@ const pg = require("pg");
 function getDbClient() {
     const dbClient = new pg.Client({
         user: 'iotproject',
-        host: 'localhost', //todo: localhost
+        host: 'localhost',
         database: 'iotfinal',
         port: 5432,
     });
