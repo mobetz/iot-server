@@ -26,14 +26,23 @@ app.use(
 );
 
 
-app.get("/readings", (req, resp) => {
+app.get("/readings/temperatures", (req, resp) => {
     const dbClient = getDbClient();
 
-    const query = "SELECT t.*, h.percentage FROM temperatures t JOIN humidities h ON t.timestamp = h.timestamp AND t.source = h.source ORDER BY timestamp desc";
+    const query = "SELECT t.* FROM temperatures t ORDER BY timestamp desc";
     dbClient.query(query, (err, res) => {
        resp.send(res.rows);
     });
 
+});
+
+app.get("/readings/humidities", (req, resp) => {
+    const dbClient = getDbClient();
+
+    const query = "SELECT h.* from humidities h ORDER BY timestamp desc";
+    dbClient.query(query, (err, res) => {
+	resp.send(res.rows);
+    });
 });
 
 
