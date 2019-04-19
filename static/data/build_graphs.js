@@ -44,26 +44,42 @@ const MS_PER_SEC = 1000;
 const SEC_PER_MIN = 60;
 const MINS_PER_HOUR = 60;
 
+const initial_range = {};
+
 function build_graph(data, graphname) {
 
     let now = Date.now() + 4 * MINS_PER_HOUR * SEC_PER_MIN * MS_PER_SEC;
 
-    let layout = {
+    let base_layout = {
         yaxis: {
-            title: 'Temperature',
+            title: 'Temperature (F)',
             titlefont: {color: '#1f77b4'},
             tickfont: {color: '#1f77b4'}
         },
         yaxis2: {
-            title: 'Humidity',
+            title: 'Humidity (%)',
             titlefont: {color: '#1f77b4'},
             tickfont: {color: '#1f77b4'}
         },
         xaxis: {
             range: [now - 10 * SEC_PER_MIN * MS_PER_SEC, now]
         },
-        dragmode: 'pan'
+        dragmode: 'pan',
+        showlegend: true
     };
+
+    let graph_obj = document.getElementById(graphname);
+    let layout;
+
+
+    if ( !graph_obj.changed ) {
+        layout = base_layout;
+    }
+    else {
+        layout = graph_obj.layout;
+    }
+
+
     Plotly.react(graphname, data, layout);
 }
 
@@ -79,7 +95,7 @@ function fetchReadings() {
 
 }
 
-document.addEventListener('DOMContentLoaded', ()=> {
+window.addEventListener('load', ()=> {
 
     let reset_button = document.getElementById('reset');
     reset.addEventListener('click', (ev) => {
@@ -88,5 +104,13 @@ document.addEventListener('DOMContentLoaded', ()=> {
         });
     });
 
+    let scroll_button = document.getElementById('scrollbutton');
+    scroll_button.addEventListener('click', (ev) => {
+        document.getElementById('temp_graph').changed = false;
+        document.getElementById('hum_graph').changed = false;
+    });
+
     setInterval(fetchReadings, 1000);
+
+
 });

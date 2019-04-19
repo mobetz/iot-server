@@ -78,15 +78,12 @@ class GraphNode {
 
             let d = calculate_distance(this.x, this.y, n.x, n.y);
             let r = TARGET_DIST;
-            let s =  2*((Math.sqrt(3) * r - d)/2);
+            let s =  1.8*((Math.sqrt(3) * r - d)/2);
 
             let loc_sub = math.subtract([n.x, n.y], [this.x, this.y]);
             let loc_norm = math.norm(loc_sub, 2);
 
             let new_values = math.add([this.x, this.y], math.multiply(s, (math.divide(loc_sub, loc_norm))));
-            console.log("Sub is: " + JSON.stringify(loc_sub));
-            console.log("Norm is: " + JSON.stringify(loc_norm));
-            console.log("New vals is: " + JSON.stringify(new_values));
             this.n_x = new_values[0];
             this.n_y = new_values[1];
 
