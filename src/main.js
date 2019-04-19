@@ -38,6 +38,7 @@ app.get("/readings/temperatures", (req, resp) => {
     const query = "SELECT t.* FROM temperatures t ORDER BY timestamp desc";
     dbClient.query(query, (err, res) => {
        resp.send(res.rows);
+       dbClient.end();
     });
 
 });
@@ -47,8 +48,10 @@ app.get("/readings/humidities", (req, resp) => {
 
     const query = "SELECT h.* from humidities h ORDER BY timestamp desc";
     dbClient.query(query, (err, res) => {
-	resp.send(res.rows);
+	    resp.send(res.rows);
+        dbClient.end();
     });
+
 });
 
 
@@ -75,17 +78,31 @@ app.post("/readings", (req, resp) => {
                 let humidity_params = [humidity, host];
 
                 dbClient.query(humidity_query, humidity_params, (err, res) => {
+                    resp.send('Reading Added!');
                     dbClient.end();
                 });
             }
-
-            resp.send('Reading Added!');
-            dbClient.end();
+            else {
+                resp.send('Reading Added!');
+                dbClient.end();
+            }
         });
 
     }
 });
 
+app.delete('/readings', (req, resp) => {
+
+    const dbClient = getDbClient();
+
+    dbClient.query("DELETE FROM temperatures", (err, res) => {
+        dbClient.query("DELETE FROM humidities", (err, res) => {
+           resp.send("All data deleted");
+           dbClient.end()
+        });
+    });
+
+});
 
 app.listen(port, () => {
     console.log(`App running on port ${port}.`)
