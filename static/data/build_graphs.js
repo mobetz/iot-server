@@ -48,7 +48,7 @@ const initial_range = {};
 
 function build_graph(data, graphname) {
 
-    let now = Date.now() + 4 * MINS_PER_HOUR * SEC_PER_MIN * MS_PER_SEC;
+    let now = Date.now(); //+ 4 * MINS_PER_HOUR * SEC_PER_MIN * MS_PER_SEC;
 
     let base_layout = {
         yaxis: {
