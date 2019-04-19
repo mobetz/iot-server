@@ -1,10 +1,11 @@
 
 class SourcePlot {
-    constructor(id) {
+    constructor(id, datatype) {
         this.id = id;
         this.x = [];
         this.y = [];
-        this.type = 'line'
+        this.type = 'basic-area';
+        this.yaxis = datatype;
     }
 
     add_reading(x,y) {
@@ -20,13 +21,13 @@ function response_to_json(resp) {
     return resp.json()
 }
 
-function split_readings_to_source_plots(readings) {
+function split_readings_to_source_plots(readings, datatype) {
 
     let source_plots = {};
 
     readings.forEach((reading) => {
         if (!source_plots.hasOwnProperty(reading.source)) {
-            source_plots[reading.source] = new SourcePlot(reading.source);
+            source_plots[reading.source] = new SourcePlot(reading.source, datatype);
         }
 
         let x = new Date(reading.timestamp);
@@ -51,26 +52,25 @@ function source_plots_to_plotly_data(plots) {
 }
 
 function build_graph(data) {
-    Plotly.animate('graph', {
-        data: data
-    });
+    console.log(data);  
+    Plotly.react('graph', data);
 }
 
 function fetchReadings() {
     let tempsPromise = fetch('/readings/temperatures')
         .then(response_to_json)
-        .then(split_readings_to_source_plots);
+        .then((r) => split_readings_to_source_plots(r, "temperature"));
     let humidsPromise = fetch('/readings/humidities')
         .then(response_to_json)
-        .then(split_readings_to_source_plots);
+        .then((r) => split_readings_to_source_plots(r, "humidity"));
 
-    Promise.all([tempsPromise, humidsPromise])
+    return Promise.all([tempsPromise, humidsPromise])
         .then(source_plots_to_plotly_data)
         .then(build_graph);
 
 }
 
 document.addEventListener('DOMContentLoaded', ()=> {
-    Plotly.newPlot('graph', {x:[], y:[]});
+
     setInterval(fetchReadings, 1000);
 });
