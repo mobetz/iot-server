@@ -7,6 +7,7 @@ class SourcePlot {
         this.type = 'scatter';
         this.fill = 'tozeroy';
         this.yaxis = (datatype === "temp") ? 'y1' : 'y2';
+        this.name = id + " " + datatype;
     }
 
     add_reading(x,y) {
@@ -27,21 +28,26 @@ function split_readings_to_source_plots(readings, datatype) {
     let source_plots = {};
 
     readings.forEach((reading) => {
-        if (!source_plots.hasOwnProperty(reading.source)) {
-            source_plots[reading.source] = new SourcePlot(reading.source, datatype);
+        if (!source_plots.hasOwnProperty(reading.name)) {
+            source_plots[reading.name] = new SourcePlot(reading.name, datatype);
         }
 
         let x = new Date(reading.timestamp);
         let y = (reading.hasOwnProperty("degrees")) ? Number.parseFloat(reading.degrees) : reading.percentage;
-        source_plots[reading.source].add_reading(x, y);
+        source_plots[reading.name].add_reading(x, y);
     });
 
     return Object.values(source_plots);
 }
 
-
+const MS_PER_SEC = 1000;
+const SEC_PER_MIN = 60;
+const MINS_PER_HOUR = 60;
 
 function build_graph(data, graphname) {
+
+    let now = Date.now() + 4 * MINS_PER_HOUR * SEC_PER_MIN * MS_PER_SEC;
+
     let layout = {
         yaxis: {
             title: 'Temperature',
@@ -52,7 +58,11 @@ function build_graph(data, graphname) {
             title: 'Humidity',
             titlefont: {color: '#1f77b4'},
             tickfont: {color: '#1f77b4'}
-        }
+        },
+        xaxis: {
+            range: [now - 10 * SEC_PER_MIN * MS_PER_SEC, now]
+        },
+        dragmode: 'pan'
     };
     Plotly.react(graphname, data, layout);
 }

@@ -41,7 +41,7 @@ app.get("/sources", (req, resp) => {
 app.get("/readings/temperatures", (req, resp) => {
     const dbClient = getDbClient();
 
-    const query = "SELECT t.* FROM temperatures t ORDER BY timestamp desc";
+    const query = "SELECT t.*,s.name FROM temperatures t JOIN sources s ON s.id = t.source ORDER BY timestamp asc";
     dbClient.query(query, (err, res) => {
        resp.send(res.rows);
        dbClient.end();
@@ -52,7 +52,7 @@ app.get("/readings/temperatures", (req, resp) => {
 app.get("/readings/humidities", (req, resp) => {
     const dbClient = getDbClient();
 
-    const query = "SELECT h.* from humidities h ORDER BY timestamp desc";
+    const query = "SELECT h.*, s.name from humidities h JOIN sources s ON s.id = h.source ORDER BY timestamp asc";
     dbClient.query(query, (err, res) => {
 	    resp.send(res.rows);
         dbClient.end();
