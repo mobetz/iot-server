@@ -53,7 +53,7 @@ app.post("/readings", (req, resp) => {
         let query = "INSERT INTO temperatures(degrees, source, timestamp) VALUES($1, (select id from sources where name=$2), NOW())";
         let params = [degrees, host];
 
-        dbClient.query(query, params, (err, res) => {
+        dbClient.query(query, (err, res) => {
 
             if ( humidity ) {
                 let humidity_query = "INSERT INTO humidities(percentage, source, timestamp) VALUES($1, (select id from sources where name=$2), NOW())";
