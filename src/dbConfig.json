@@ -1,0 +1,6 @@
+{
+  "user": "iotproject",
+  "host": "localhost",
+  "database": "iotfinal",
+  "port": 5432
+}

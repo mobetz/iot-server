@@ -4,13 +4,10 @@ const app = express();
 const port = 3000;
 const pg = require("pg");
 
+const dbConfig = require("./dbConfig.json");
+
 function getDbClient() {
-    const dbClient = new pg.Client({
-        user: 'iotproject',
-        host: 'localhost',
-        database: 'iotfinal',
-        port: 5432,
-    });
+    const dbClient = new pg.Client(dbConfig);
     dbClient.connect();
     return dbClient;
 }
