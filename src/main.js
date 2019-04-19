@@ -30,7 +30,7 @@ app.get("/readings", (req, resp) => {
     const dbClient = getDbClient();
 
     const query = "SELECT t.*, h.percentage FROM temperatures t JOIN humidities h ON t.timestamp = h.timestamp AND t.source = h.source ORDER BY timestamp desc";
-    dbClient.query(query, params, (err, res) => {
+    dbClient.query(query, (err, res) => {
        resp.send(res.rows);
     });
 
@@ -53,7 +53,7 @@ app.post("/readings", (req, resp) => {
         let query = "INSERT INTO temperatures(degrees, source, timestamp) VALUES($1, (select id from sources where name=$2), NOW())";
         let params = [degrees, host];
 
-        dbClient.query(query, (err, res) => {
+        dbClient.query(query, params, (err, res) => {
 
             if ( humidity ) {
                 let humidity_query = "INSERT INTO humidities(percentage, source, timestamp) VALUES($1, (select id from sources where name=$2), NOW())";
