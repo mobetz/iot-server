@@ -64,13 +64,13 @@ function fetchReadings() {
         .then(response_to_json)
         .then(split_readings_to_source_plots);
 
-    Promise.all(tempsPromise, humidsPromise)
+    Promise.all([tempsPromise, humidsPromise])
         .then(source_plots_to_plotly_data)
         .then(build_graph);
 
 }
 
-document.addEventListener('onload', ()=> {
+document.addEventListener('DOMContentLoaded', ()=> {
     Plotly.newPlot('graph', {x:[], y:[]});
     setInterval(fetchReadings, 1000);
 });
