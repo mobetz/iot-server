@@ -6,7 +6,7 @@ const pg = require("pg");
 
 
 
-app.use(express.static('../static'));
+app.use(express.static('static'));
 
 app.use(bodyParser.json());
 app.use(
