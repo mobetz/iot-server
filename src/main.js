@@ -22,14 +22,20 @@ app.use(
     })
 );
 
+function get_sources() {
+    return new Promise((resolve, reject) => {
+        const dbClient = getDbClient();
+
+        const query = "SELECT s.* FROM sources s";
+        dbClient.query(query, (err, res) => {
+            resolve(res.rows);
+            dbClient.end();
+        });
+    })
+}
+
 app.get("/sources", (req, resp) => {
-    const dbClient = getDbClient();
-
-    const query = "SELECT s.* FROM sources s";
-    dbClient.query(query, (err, res) => {
-        resp.send(res.rows);
-    });
-
+    get_sources().then((sources) => resp.send(sources));
 });
 
 app.get("/readings/temperatures", (req, resp) => {
@@ -61,33 +67,50 @@ app.post("/readings", (req, resp) => {
     console.log(req.body);
 
     let degrees = req.body.degrees;
-    let host = req.body.host;
+    let host = req.body.sensor_id;
     let humidity = req.body.humidity;
 
-    if(!degrees || !host) {
-        resp.status(400).send("degrees or host not supplied!")
-    }
-    else {
-        let query = "INSERT INTO temperatures(degrees, source, timestamp) VALUES($1, (select id from sources where name=$2), NOW())";
-        let params = [degrees, host];
 
-        dbClient.query(query, params, (err, res) => {
+    if (!degrees || !host) {
+        resp.status(400).send("degrees or sensor_id not supplied!")
+    } else {
+        get_sources()
+            .then((sources_list) => {
+                return sources_list.reduce((dict, s) => {
+                    dict[s.name] = s.id;
+                    return dict;
+                }, {});
 
-            if ( humidity ) {
-                let humidity_query = "INSERT INTO humidities(percentage, source, timestamp) VALUES($1, (select id from sources where name=$2), NOW())";
-                let humidity_params = [humidity, host];
+            })
+            .then((sources_dict) => {
+                if (!sources_dict.hasOwnProperty(host)) {
+                    return dbClient.query("INSERT INTO sources(name) VALUES($1)", [host]);
+                }
+            })
+            .then(() => {
+                let query = "INSERT INTO temperatures(degrees, source, timestamp) VALUES($1, (select id from sources where name=$2), NOW())";
+                let params = [degrees, host];
 
-                dbClient.query(humidity_query, humidity_params, (err, res) => {
-                    resp.send('Reading Added!');
-                    dbClient.end();
-                });
-            }
-            else {
+                return dbClient.query(query, params);
+            })
+            .then(() => {
+                if (humidity) {
+                    let humidity_query = "INSERT INTO humidities(percentage, source, timestamp) VALUES($1, (select id from sources where name=$2), NOW())";
+                    let humidity_params = [humidity, host];
+
+                    return dbClient.query(humidity_query, humidity_params);
+                }
+            })
+            .then(() => {
                 resp.send('Reading Added!');
                 dbClient.end();
-            }
-        });
+            })
+            .catch((e) => {
+                console.log(e);
+                resp.status(400).send(e);
+                dbClient.end();
 
+            });
     }
 });
 
