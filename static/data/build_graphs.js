@@ -4,6 +4,7 @@ class SourcePlot {
         this.id = id;
         this.x = [];
         this.y = [];
+        this.type = 'line'
     }
 
     add_reading(x,y) {
@@ -33,11 +34,27 @@ function split_readings_to_source_plots(readings) {
         source_plots[reading.source].add_reading(x, y);
     });
 
-    console.log(source_plots);
-
     return source_plots;
 }
 
+
+function source_plots_to_plotly_data(plots) {
+    let data = [];
+
+    plots.forEach((plot_collection) => {
+       Object.keys(plot_collection).forEach((plotName) => {
+           data.push(plot_collection[plotName]);
+       });
+    });
+
+    return data;
+}
+
+function build_graph(data) {
+    Plotly.animate('graph', {
+        data: data
+    });
+}
 
 function fetchReadings() {
     let tempsPromise = fetch('/readings/temperatures')
@@ -47,8 +64,13 @@ function fetchReadings() {
         .then(response_to_json)
         .then(split_readings_to_source_plots);
 
+    Promise.all(tempsPromise, humidsPromise)
+        .then(source_plots_to_plotly_data)
+        .then(build_graph);
+
 }
 
 document.addEventListener('onload', ()=> {
-
+    Plotly.newPlot('graph', {x:[], y:[]});
+    setInterval(fetchReadings, 1000);
 });
