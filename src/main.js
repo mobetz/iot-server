@@ -25,7 +25,7 @@ app.use(
     })
 );
 
-app.get("/readings/temperatures", (req, resp) => {
+app.get("/sources", (req, resp) => {
     const dbClient = getDbClient();
 
     const query = "SELECT s.* FROM sources s";
