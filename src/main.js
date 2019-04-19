@@ -25,6 +25,15 @@ app.use(
     })
 );
 
+app.get("/readings/temperatures", (req, resp) => {
+    const dbClient = getDbClient();
+
+    const query = "SELECT s.* FROM sources s";
+    dbClient.query(query, (err, res) => {
+        resp.send(res.rows);
+    });
+
+});
 
 app.get("/readings/temperatures", (req, resp) => {
     const dbClient = getDbClient();
