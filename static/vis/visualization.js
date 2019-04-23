@@ -230,6 +230,24 @@ let animation_id = 0;
 
 let blue_checkbox, orange_checkbox;
 
+
+
+let rssi_data = [
+    [52,50,50,50,50,51,53,55,52,50,52,52,52,52,51,52,52,50,49,53],
+    [54,60,56,58,56,58,56,56,57,56,56,55,55,56,55,56,56,56,54,55],
+    [65,65,66,63,64,62,63,68,66,61,67,65,64,64,67,63,63,64,64,65],
+    [64,62,63,62,63,60,61,64,80,69,66,65,62,62,63,63,64,64,64,64],
+    [70,66,65,65,66,69,67,65,69,71,70,66,67,67,65,66,64,64,65,64],
+    [70,69,68,72,71,69,69,73,69,68,66,68,69,70,68,69,69,69,68,69],
+    [73,73,68,74,74,69,70,68,68,73,73,68,67,67,67,69,66,66,66,65],
+    [65,65,65,63,66,65,64,62,64,66,64,65,64,63,64,64,64,64,65,65],
+    [72,73,70,68,68,70,67,70,75,69,68,67,68,78,78,66,67,67,65,66],
+    [72,70,72,73,74,75,74,76,76,74,72,72,73,76,76,75,75,74,73,72],
+    [100,86,100,83,83,83,83,80,87,77,81,82,81,81,81,83,84,80,80],
+    [85,85,84,85,85,84,83,84,87,85,86,86,86,88,88,86,84,84],
+    [92]
+];
+
 document.addEventListener('DOMContentLoaded', function() {
 
     blue_checkbox = document.getElementById("blue");
@@ -247,4 +265,31 @@ document.addEventListener('DOMContentLoaded', function() {
         requestAnimationFrame(getRenderLoop(animation_id));
     });
 
+    let rssi_table = document.getElementById("rssi_measurements");
+
+    rssi_data.forEach((data, i) => {
+        let distance = (i+1) * 10;
+        if (distance > 100) distance = "100 + " + (distance-100);
+        distance = distance + " ft";
+
+        let avg = "-" + Math.floor(math.mean(data)*100)/100 + " dB";
+        let packet_loss = (20 - data.length)*5 + "%";
+
+        let row = document.createElement("div");
+        row.classList.add('table-row');
+        rssi_table.appendChild(row);
+
+        [distance, avg, packet_loss].forEach((cell_contents) => {
+
+            let cell = document.createElement("div");
+            cell.classList.add('table-cell');
+            cell.innerText = cell_contents;
+
+            row.appendChild(cell);
+        })
+
+
+
+
+    })
 });
